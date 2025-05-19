@@ -21,11 +21,11 @@ awk 'NR%30==1 {file=substr(FILENAME, 1, length(FILENAME)-5) sprintf("%02d.list",
 
 Now use this bash script to process the sequence data using the flanking and non-flanking data with phyluce
 ```
-##!/bin/bash
+#!/bin/bash
 #source /local/anaconda3/bin/activate
 #conda activate phyluce-1.7.1_py36
 #run like
-#nohup conda run -n phyluce-1.7.1_py36 bash 2bit_slice.sh ${PWD} 17 4
+#nohup conda run -n phyluce-1.7.1_py36 bash 2bit_slice.sh ${PWD} 17 4 > 2bit_slice.out &
 # this script creates 2bit files for phyluce to process using the slice from genomes pipline
 # you need to have generated N list files previously, 
 
@@ -34,8 +34,7 @@ NLISTS=${2}
 CORES=${3}
 
 cd ${WORKINGDIR}
-for
- i in $(ls contigs); do
+for i in $(ls contigs); do
 
     # extract taxa info from contigs
     TAXA=$(echo ${i} | cut -d "." -f 1);
@@ -60,18 +59,16 @@ for i in $(seq -w 01 ${NLISTS}); do
     done >> taxa${i}.config;
 done
 
-
 cd ${WORKINGDIR}/2bit
 # run lastz
 for i in $(seq -w 01 ${NLISTS}); do
-break
     FILE="sampleIDs${i}.list";
     phyluce_probe_run_multiple_lastzs_sqlite \
         --db set${i}.sqlite \
-        --output ../Gaedephaga_probes_${i}-lastz \
+        --output ../GeaSub_2.9kv1_${i}-lastz \
         --scaffoldlist $(cat ../${FILE}) \
         --genome-base-path ./ \
-        --probefile ../Gaedephaga_probes.fasta \
+        --probefile ../GeaSub_2.9kv1.fasta \
         --coverage 50 \
         --identity 80 \
         --cores ${CORES}
@@ -81,22 +78,21 @@ cd ${WORKINGDIR}
 # extract core probe regions
 for i in $(seq -w 01 ${NLISTS}); do
     phyluce_probe_slice_sequence_from_genomes \
-        --lastz Gaedephaga_probes_${i}-lastz \
+        --lastz GeaSub_2.9kv1_${i}-lastz \
         --conf taxa${i}.config \
         --flank 0 \
-        --name-pattern "Gaedephaga_probes.fasta_v_{}.lastz.clean" \
-        --output Gaedephaga_probes_${i}-noflank-fasta
+        --name-pattern "GeaSub_2.9kv1.fasta_v_{}.lastz.clean" \
+        --output GeaSub_2.9kv1_${i}-noflank-fasta
 
 # extract core + flanking of 100bp reads shouldn't be longer
 # than aroud 220 bp (50 + 120 + 50; Flanking + Core + Flanking)
     phyluce_probe_slice_sequence_from_genomes \
-        --lastz Gaedephaga_probes_${i}-lastz \
+        --lastz GeaSub_2.9kv1_${i}-lastz \
         --conf taxa${i}.config \
         --flank 50 \
-        --name-pattern "Gaedephaga_probes.fasta_v_{}.lastz.clean" \
-        --output Gaedephaga_probes_${i}-flank50-fasta
+        --name-pattern "GeaSub_2.9kv1.fasta_v_{}.lastz.clean" \
+        --output GeaSub_2.9kv1_${i}-flank50-fasta
 done
-
 ```
 
 Phyluce changes the names of the files. So we need to get all data into the appropriate direcotry while changing the names back to what we named them
