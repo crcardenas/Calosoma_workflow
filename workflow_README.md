@@ -359,8 +359,3 @@ for CURATION in flank50 noflank; do
     done
 done
 ```
-
-
-# IQTREE
-
-for SUBSET in flank50 noflank; do iqtree -s ${SUBSET}_mafft_trimal_40p-nex.nexus -p  ${SUBSET}_mafft_trimal_40p-parti.nexus -pre Calosoma_${SUBSET}_symtest --symtest-only; done
