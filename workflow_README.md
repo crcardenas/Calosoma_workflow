@@ -95,11 +95,14 @@ for i in $(seq -w 01 ${NLISTS}); do
 done
 ```
 
-Phyluce changes the names of the files. So we need to get all data into the appropriate direcotry while changing the names back to what we named them
+need to get all data into the appropriate directory for the next phyluce step, while also changing the names back to what we named them
+
 ```
+find ./*-fasta -empty -exec ls -Fd {} \; > noUCE.list
+find ./*-fasta -empty -exec rm {} \;
 for CURATION in noflank flank50; do
-mkdir /home/cody/Calosoma_phylo/Calosoma_2025/2_find_uces/contigs/${CURATION}
-    for i in $(ls Gaedephaga_probes_*-${CURATION}-fasta/*); do
+mkdir -p /home/cody/Calosoma_phylo/Calosoma_2025/2_find_uces/contigs/${CURATION}
+    for i in $(ls GeaSub_2.9kv1_*-${CURATION}-fasta/*); do
         PATHWAY=$(echo ${i} | cut -d "/" -f 1);
         OLD=$(echo ${i} | cut -d "/" -f 2 | cut -d "." -f 1);
         NEW=$(echo ${i} | cut -d "/" -f 2 | cut -d "." -f 1 | tr '[:lower:]' '[:upper:]');
